@@ -54,7 +54,7 @@ export class DPPSPDFKit implements ComponentFramework.StandardControl<IInputs, I
 	 */
     public init(context: ComponentFramework.Context<IInputs>, notifyOutputChanged: () => void, state: ComponentFramework.Dictionary, container: HTMLDivElement) {
         this._context = context;
-        this._psPdfKitLicenseKey = context.parameters.psPdfKitLicsenseKey.raw ? context.parameters.psPdfKitLicsenseKey.raw : "";
+        this._psPdfKitLicenseKey = context.parameters.psPdfKitLicenseKey.raw ? context.parameters.psPdfKitLicenseKey.raw : "";
         this._container = document.createElement("div");
         this._selectAnnotation = this.selectAnnotation.bind(this);
         this._refreshList = this.refreshList.bind(this);
@@ -198,7 +198,7 @@ export class DPPSPDFKit implements ComponentFramework.StandardControl<IInputs, I
 	 */
     public updateView(context: ComponentFramework.Context<IInputs>): void {
         this._context = context;
-        this._psPdfKitLicenseKey = context.parameters.psPdfKitLicsenseKey.raw ? context.parameters.psPdfKitLicsenseKey.raw : "";
+        this._psPdfKitLicenseKey = context.parameters.psPdfKitLicenseKey.raw ? context.parameters.psPdfKitLicenseKey.raw : "";
         this.initializeAnnotations();
     }
 
