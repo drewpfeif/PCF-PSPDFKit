@@ -1,0 +1,23 @@
+﻿/*.DrewPfeif\.DPPSPDFKit #ddAnnotations {
+    float: left;
+}*/
+
+.DrewPfeif\.DPPSPDFKit #divHeader {
+    display: flex;
+    align-items: center;
+}
+
+.DrewPfeif\.DPPSPDFKit #btnRefresh {
+    margin: auto;
+}
+
+.DrewPfeif\.DPPSPDFKit #pspdfkit {
+    height: 500px;
+    border: 1px solid red;
+    clear: both;
+}
+
+.DrewPfeif\.DPPSPDFKit #pspdfkit.hidden {
+    visibility: hidden;
+    height: auto;
+}

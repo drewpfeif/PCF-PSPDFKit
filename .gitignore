@@ -12,3 +12,6 @@
 # msbuild output directories
 /bin
 /obj
+
+# solution directory
+/DrewPfeifPSPDFKit

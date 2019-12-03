@@ -1,7 +1,7 @@
 {
-  "name": "pcf-project",
+  "name": "pcf-pspdfkit",
   "version": "1.0.0",
-  "description": "Project containing your PowerApps Component Framework (PCF) control.",
+  "description": "PowerApps Component Framework (PCF) control for PSPDFKit.",
   "scripts": {
     "build": "pcf-scripts build",
     "clean": "pcf-scripts clean",
@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "@types/node": "^10.12.18",
-    "@types/powerapps-component-framework": "^1.2.0"
+    "@types/powerapps-component-framework": "^1.2.0",
+    "pspdfkit": "^2019.5.3"
   },
   "devDependencies": {
     "pcf-scripts": "^1",
