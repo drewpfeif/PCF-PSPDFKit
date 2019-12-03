@@ -1,2 +1,5 @@
 # PCF-PSPDFKit
-PowerApps Component Framework using PSPDFKit
+PowerApps Component Framework (PCF) Control using PSPDFKit
+
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
