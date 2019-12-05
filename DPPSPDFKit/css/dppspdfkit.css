@@ -1,23 +1,51 @@
-﻿/*.DrewPfeif\.DPPSPDFKit #ddAnnotations {
-    float: left;
-}*/
-
-.DrewPfeif\.DPPSPDFKit #divHeader {
-    display: flex;
-    align-items: center;
+﻿#pdfModal #pspdfkit {
+    height: 99%;
+    border: 1px solid black;
 }
 
-.DrewPfeif\.DPPSPDFKit #btnRefresh {
-    margin: auto;
+#pdfModal:not(.hidden) {
+    display: unset;
 }
 
-.DrewPfeif\.DPPSPDFKit #pspdfkit {
-    height: 500px;
-    border: 1px solid red;
-    clear: both;
+#pdfModal .modal-dialog {
+    min-height: 96%;
+    height: 96%;
 }
 
-.DrewPfeif\.DPPSPDFKit #pspdfkit.hidden {
-    visibility: hidden;
-    height: auto;
+#pdfModal .hidden {
+    display: none;
+}
+
+#pdfModal .modal-content {
+    height: 99%;
+}
+
+#pdfModal .modal-body {
+    height: 100%;
+}
+
+.DrewPfeif\.DPPSPDFKit .card:hover {
+    cursor: pointer;
+    box-shadow: 0 0 0 2px rgba(0, 38, 255, 0.5);
+    background-color: rgba(128, 128, 128, 0.25);
+}
+
+.DrewPfeif\.DPPSPDFKit .card .show-on-hover {
+    display: none;
+}
+
+.DrewPfeif\.DPPSPDFKit .card:hover .show-on-hover {
+    display: block;
+}
+
+.DrewPfeif\.DPPSPDFKit .card:hover .hide-on-hover {
+    display: none;
+}
+
+.DrewPfeif\.DPPSPDFKit .card:hover li {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.DrewPfeif\.DPPSPDFKit li {
+    white-space: nowrap;
 }

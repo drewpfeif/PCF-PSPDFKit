@@ -9,8 +9,12 @@
     "start": "pcf-scripts start"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.25",
+    "@fortawesome/free-regular-svg-icons": "^5.11.2",
+    "@fortawesome/free-solid-svg-icons": "^5.11.2",
     "@types/node": "^10.12.18",
     "@types/powerapps-component-framework": "^1.2.0",
+    "bootstrap": "^4.4.1",
     "pspdfkit": "^2019.5.3"
   },
   "devDependencies": {

@@ -1,3 +1,13 @@
+import { library, dom } from "@fortawesome/fontawesome-svg-core";
+import { faFilePdf } from "@fortawesome/free-regular-svg-icons";
+
+// We are only using the file-pdf icon
+library.add(faFilePdf);
+
+// Replace any existing <i> tags with <svg> and set up a MutationObserver to
+// continue doing this as the DOM changes.
+dom.watch();
+
 import { IInputs, IOutputs } from "./generated/ManifestTypes";
 import { Annotation } from "./models/Annotation";
 
@@ -13,21 +23,8 @@ export class DPPSPDFKit implements ComponentFramework.StandardControl<IInputs, I
 
     // reference to PowerApps component framework Context object
     private _context: ComponentFramework.Context<IInputs>;
-
-    // Event Handler 'selectAnnotation' reference
-    private _selectAnnotation: EventListenerOrEventListenerObject;
-    // Event Handler 'refreshList' reference
-    private _refreshList: EventListenerOrEventListenerObject;
-
-    // drop down list of annotations
-    private _headerContainer: HTMLDivElement;
-    private _dropDownElement: HTMLSelectElement;
-
-    // refresh button
-    private _refreshButtonElement: HTMLButtonElement;
-
+   
     // no annotations found label element
-    private _noAnnotationsContainer: HTMLDivElement;
     private _noAnnotationsFoundLabelElement: HTMLLabelElement;
 
     // array of annotations with PDF attachments
@@ -36,6 +33,11 @@ export class DPPSPDFKit implements ComponentFramework.StandardControl<IInputs, I
     // PSPDFKit License Key
     private _psPdfKitLicenseKey: string;
 
+    // modal
+    private _divModal: HTMLDivElement;
+
+    // modal title
+    private _h5ModalTitle: HTMLHeadingElement;
 
 	/**
 	 * Empty constructor.
@@ -56,44 +58,76 @@ export class DPPSPDFKit implements ComponentFramework.StandardControl<IInputs, I
         this._context = context;
         this._psPdfKitLicenseKey = context.parameters.psPdfKitLicenseKey.raw ? context.parameters.psPdfKitLicenseKey.raw : "";
         this._container = document.createElement("div");
-        this._selectAnnotation = this.selectAnnotation.bind(this);
-        this._refreshList = this.refreshList.bind(this);
 
-        // add drop down list
-        this._headerContainer = document.createElement("div");
-        this._headerContainer.id = "divHeader";
-        this._dropDownElement = document.createElement("select");
-        this._dropDownElement.id = "ddAnnotations";
-        this._dropDownElement.className = "dd-annotations";
-        this._dropDownElement.options.add(new Option("Select a PDF to display", ""));
-        this._dropDownElement.addEventListener("change", this._selectAnnotation);
-        this._headerContainer.appendChild(this._dropDownElement);
-        this._refreshButtonElement = document.createElement("button");
-        this._refreshButtonElement.id = "btnRefresh";
-        this._refreshButtonElement.innerText = "Refresh";
-        this._refreshButtonElement.addEventListener("click", this._refreshList);
-        this._headerContainer.appendChild(this._refreshButtonElement);
-        this._container.appendChild(this._headerContainer);
+        //// font awesome test
+        //let faDiv = document.createElement("div");
+        //let faIcon = document.createElement("i");
+        //faIcon.classList.add("far", "fa-file-pdf", "fa-9x");
+        //faDiv.appendChild(faIcon);
+        //this._container.appendChild(faDiv);
+        
+        // get annotations with pdf attachments
+        this.initializeAnnotations();
+        this.initializePsPdfKitModal();
 
-        // add hidden label
-        this._noAnnotationsContainer = document.createElement("div");
-        this._noAnnotationsContainer.hidden = true;
-        this._noAnnotationsFoundLabelElement = document.createElement("label");
-        this._noAnnotationsFoundLabelElement.id = "lblNoAnnoFound";
-        this._noAnnotationsFoundLabelElement.innerHTML = "No Annotations Found";
-        this._noAnnotationsContainer.appendChild(this._noAnnotationsFoundLabelElement);
-        this._container.appendChild(this._noAnnotationsContainer);
+        container.appendChild(this._container);
+    }
+
+    private initializePsPdfKitModal() {
+        let btnCloseModal = <HTMLButtonElement>this.createHtmlElement("button", "btn", "btn-secondary");
+        btnCloseModal.type = "button";
+        btnCloseModal.innerText = "Close";
+        btnCloseModal.onclick = (evt) => { this._divModal.classList.add("hidden"); };
+
+        let divModalFooter = <HTMLDivElement>this.createHtmlElement("div", "modal-footer");
+        divModalFooter.appendChild(btnCloseModal);
 
         // add PSPDFKit container
         this._psPdfKitContainer = document.createElement("div");
         this._psPdfKitContainer.id = "pspdfkit";
-        this._psPdfKitContainer.classList.add("hidden");
-        this._container.appendChild(this._psPdfKitContainer);
 
-        // get annotations with pdf attachments
-        this.initializeAnnotations();
+        let divModalBody = <HTMLDivElement>this.createHtmlElement("div", "modal-body");
+        divModalBody.appendChild(this._psPdfKitContainer);
 
-        container.appendChild(this._container);
+        let spanCloseModal = document.createElement("span");
+        spanCloseModal.setAttribute("aria-hidden", "true");
+        spanCloseModal.innerText = "x";
+
+        let btnHeaderCloseModal = <HTMLButtonElement>this.createHtmlElement("button", "close");
+        btnHeaderCloseModal.type = "button";
+        btnHeaderCloseModal.setAttribute("data-dismiss", "modal");
+        btnHeaderCloseModal.setAttribute("area-label", "Close");
+        btnHeaderCloseModal.onclick = (evt) => { this._divModal.classList.add("hidden"); };
+        btnHeaderCloseModal.appendChild(spanCloseModal);
+
+        // make this global
+        this._h5ModalTitle = <HTMLHeadingElement>this.createHtmlElement("h5", "modal-title");
+        this._h5ModalTitle.id = "pdfModalTitle";
+        this._h5ModalTitle.innerText = "PDF Viewer";
+
+        let divModalHeader = <HTMLDivElement>this.createHtmlElement("div", "modal-header");
+        divModalHeader.appendChild(this._h5ModalTitle);
+        divModalHeader.appendChild(btnHeaderCloseModal);
+
+        let divModalContent = <HTMLDivElement>this.createHtmlElement("div", "modal-content");
+        divModalContent.appendChild(divModalHeader);
+        divModalContent.appendChild(divModalBody);
+        divModalContent.appendChild(divModalFooter);
+
+        let divModalDialog = <HTMLDivElement>this.createHtmlElement("div", "modal-dialog", "modal-xl", "modal-dialog-centered");
+        divModalDialog.setAttribute("role", "document");
+        divModalDialog.appendChild(divModalContent);
+
+        this._divModal = <HTMLDivElement>this.createHtmlElement("div", "modal", "hidden");
+        this._divModal.id = "pdfModal";
+        this._divModal.tabIndex = -1;
+        this._divModal.setAttribute("role", "dialog");
+        this._divModal.setAttribute("aria-labelledby", "pdfModalTitle");
+        this._divModal.setAttribute("aria-hidden", "true");
+        this._divModal.appendChild(divModalDialog);
+        
+        //this._container.appendChild(this._divModal);
+        document.body.appendChild(this._divModal);
     }
 
     private async initializeAnnotations() {
@@ -101,73 +135,103 @@ export class DPPSPDFKit implements ComponentFramework.StandardControl<IInputs, I
         const recordId = (<any>this._context).page.entityId;
 
         let annotations = await this.getAnnotations(recordId, recordLogicalName);
-
-        // clear any existing options
-        let currentOptions: Array<string> = [];
-        const optionsLength = this._dropDownElement.options.length;
-        for (var i = 0; i < optionsLength; i++) {
-            const opt = this._dropDownElement.options.item(i);
-            if (opt) {
-                currentOptions.push(opt.value);
-            }
-        }
-
+        
         if (annotations.length) {
-            this._noAnnotationsContainer.hidden = true;
-
-            annotations.forEach(a => {
-                // add to drop down list only if it isn't in the list
-                if (!currentOptions.find(c => c === a.annotationId)) {
-                    this._dropDownElement.options.add(new Option(`${a.fileName}.${a.fileType}`, a.annotationId));
-                    this._annotations.push(a);
-                }
-            });
-
-            // remove options from the drop down list if they are not found in this._annotations
-            for (var i = this._dropDownElement.options.length - 1; i >= 0; i--) {
-                const opt = this._dropDownElement.options.item(i);
-                if (opt && opt.value.length && !this._annotations.find(a => a.annotationId === opt.value)) {
-                    this._dropDownElement.options.remove(i);
-                    this._annotations.splice(this._annotations.findIndex(a => a.annotationId === opt.value));
-                }
-            }
+            let cards = annotations.map(a => this.createCard(a));
+            let divGridCards = <HTMLDivElement>this.createHtmlElement("div", "row");
+            cards.forEach(c => divGridCards.appendChild(c));
+            this._container.appendChild(divGridCards);
+            this._annotations.push(...annotations);
         }
         else {
-            if (currentOptions.length === 1) {
-                this._noAnnotationsContainer.hidden = false;
-            }            
+            this._noAnnotationsFoundLabelElement = document.createElement("label");
+            this._noAnnotationsFoundLabelElement.id = "lblNoAnnoFound";
+            this._noAnnotationsFoundLabelElement.innerHTML = "No Annotations Found";
+            this._container.appendChild(this._noAnnotationsFoundLabelElement);
         }
     }
 
-    public selectAnnotation(evt: Event) {
+    private createHtmlElement(tag: string, ...classes: Array<string>): HTMLElement {
+        let ele = document.createElement(tag);
+        ele.classList.add(...classes);
+        return ele;
+    }
+
+    private createCard(anno: Annotation): HTMLElement {
+        let divColMb4 = <HTMLDivElement>this.createHtmlElement("div", "col", "mb-4");
+        let divCard = <HTMLDivElement>this.createHtmlElement("div", "card");
+        let divCardBody = <HTMLDivElement>this.createHtmlElement("div", "card-body", "h-100", "hide-on-hover");
+        let h5CardTitle = <HTMLHeadingElement>this.createHtmlElement("h5", "card-title");
+        let pCardText = <HTMLParagraphElement>this.createHtmlElement("p", "card-text");
+        let ulListGroup = <HTMLUListElement>this.createHtmlElement("ul", "list-group", "list-group-flush");
+        let liListGroupItemFileName = <HTMLLIElement>this.createHtmlElement("li", "list-group-item");
+        let liListGroupItemModifiedDate = <HTMLLIElement>this.createHtmlElement("li", "list-group-item");
+        //let divCardFooter = <HTMLDivElement>this.createHtmlElement("div", "card-footer");
+        //let btnView = <HTMLButtonElement>this.createHtmlElement("button", "btn", "btn-primary", "btn-lg", "btn-block");
+        let divCardBodyHover = <HTMLDivElement>this.createHtmlElement("div", "card-body", "h-100", "show-on-hover");
+        let divHoverTitle = <HTMLHeadingElement>this.createHtmlElement("h5", "card-title");
+        let divHoverIcon = this.createHtmlElement("i", "far", "fa-file-pdf");
+        let pHoverText = <HTMLParagraphElement>this.createHtmlElement("p", "card-text");
+
+        divCard.onmouseenter = () => { divCard.classList.add("hover"); };
+        divCard.onmouseleave = () => { divCard.classList.remove("hover"); };
+
+        h5CardTitle.innerText = anno.subject;
+        pCardText.innerText = anno.description;
+        liListGroupItemFileName.innerText = anno.fileName;
+        liListGroupItemModifiedDate.innerText = anno.modifiedOn.toLocaleDateString();
+        pHoverText.innerText = "View PDF";
+
+        divCardBodyHover.onclick = (e) => {
+            this.selectAnnotation(anno.annotationId);
+        };
+
+        //btnView.type = "button";
+        //btnView.innerText = "View PDF";
+        //btnView.value = anno.annotationId;
+        //btnView.setAttribute("data-toggle", "modal");
+        //btnView.setAttribute("data-target", "#pdfModal");
+        //btnView.onclick = (e) => {
+        //    this.selectAnnotation(e);
+        //};
+
+        divHoverTitle.appendChild(divHoverIcon);
+        divCardBodyHover.appendChild(divHoverTitle);
+        divCardBodyHover.appendChild(pHoverText);
+        //divCardFooter.appendChild(btnView);
+        ulListGroup.appendChild(liListGroupItemFileName);
+        ulListGroup.appendChild(liListGroupItemModifiedDate);
+        divCardBody.appendChild(h5CardTitle);
+        divCardBody.appendChild(pCardText);
+        divCard.appendChild(divCardBody);
+        divCard.appendChild(divCardBodyHover);
+        divCard.appendChild(ulListGroup);
+        //divCard.appendChild(divCardFooter);
+        divColMb4.appendChild(divCard);
+
+        return divColMb4;
+    }
+
+    public async selectAnnotation(id: string) {
         // unload pspdfkit container
         PSPDFKit.unload("#pspdfkit");
 
-        const annotationId: string = (evt.target as any).value;
-        const annotation = this._annotations.find(a => a.annotationId === annotationId);
+        const annotation = this._annotations.find(a => a.annotationId === id);
         if (annotation) {
-            if (this._psPdfKitContainer.classList.contains("hidden")) {
-                this._psPdfKitContainer.classList.remove("hidden");
+            if (!annotation.documentBody) {
+                annotation.documentBody = await this.getPdfFile(annotation.annotationId);
             }
+            this._h5ModalTitle.innerText = annotation.fileName;
+            this._divModal.classList.remove("hidden");
             this.load(annotation.documentBody);
         }
         else {
-            if (!this._psPdfKitContainer.classList.contains("hidden")) {
-                this._psPdfKitContainer.classList.add("hidden");
-            }
-            if (annotationId.length) {
-                alert(`annotation ${annotationId} not found!`);
-            }            
+            // make this a toast
+            alert(`annotation ${id} not found!`);
         }
     }
 
-    public refreshList(evt: Event) {
-        this.initializeAnnotations();
-    }
-
     private load(pdf: string): void {
-        
-
         console.log(`converting pdf to ArrayBuffer...`);
         const binaryString = atob(pdf);
         const bytes = new Uint8Array(pdf.length);
@@ -199,7 +263,6 @@ export class DPPSPDFKit implements ComponentFramework.StandardControl<IInputs, I
     public updateView(context: ComponentFramework.Context<IInputs>): void {
         this._context = context;
         this._psPdfKitLicenseKey = context.parameters.psPdfKitLicenseKey.raw ? context.parameters.psPdfKitLicenseKey.raw : "";
-        this.initializeAnnotations();
     }
 
 	/** 
@@ -216,7 +279,7 @@ export class DPPSPDFKit implements ComponentFramework.StandardControl<IInputs, I
 	 */
     public destroy(): void {
         // Add code to cleanup control if necessary
-        this._dropDownElement.removeEventListener("change", this.selectAnnotation);
+        
     }
 
     /**
@@ -228,50 +291,58 @@ export class DPPSPDFKit implements ComponentFramework.StandardControl<IInputs, I
         // if running on local machine then return test annotation
         if (!(this._context as any).orgSettings.uniqueName) {
             const samplePdf = this._context.resources.getString("DrewPfeif_Sample_PDF");
-            const newAnno = new Annotation({
-                annotationId: "0",
-                createdBy: "drewpfeif",
-                description: "description",
-                documentBody: samplePdf,
-                entityImageUrl: "",
-                fileName: "sample",
-                fileSize: 1000,
-                fileType: "pdf",
-                modifiedOn: new Date(),
-                subject: "subject"
-            });
-            return Promise.resolve([newAnno]);
+            let annos: Array<Annotation> = [];
+            for (var i = 0; i < 10; i++) {
+                annos.push(new Annotation({
+                    annotationId: `anno${i}`,
+                    description: `my note ${i}`,
+                    documentBody: samplePdf,
+                    fileName: `And a one and a two SamplePdf_${i}.pdf`,
+                    modifiedOn: new Date(),
+                    subject: `my note ${i}`
+                }));
+            }
+            
+            return Promise.resolve(annos);
         }
         else {
             const query =
-                "?$select=filename,subject,annotationid,filesize,documentbody,mimetype,notetext,modifiedon,mimetype" +
-                "&$expand=createdby($select=fullname,entityimage_url)" +
+                "?$select=annotationid,subject,notetext,filename,modifiedon" +
                 "&$filter=filename ne null and mimetype eq 'application/pdf' and _objectid_value eq " + recordId +
                 " and objecttypecode eq '" + recordLogicalName + "' &$orderby=createdon desc";
 
             return this._context.webAPI.retrieveMultipleRecords("annotation", query).then(
-            function success(result) {
-                const annotations = result.entities.map(ent => {
-                    return new Annotation({
-                        subject: ent["subject"] ? ent["subject"].toString() : "",
-                        annotationId: ent["annotationid"].toString(),
-                        description: ent["description"] ? ent["description"].toString() : "",
-                        fileName: ent["filename"].split('.')[0],
-                        fileType: ent["filename"].split('.')[1],
-                        fileSize: ent["filesize"],
-                        documentBody: ent["documentbody"],
-                        createdBy: ent["createdby"].fullname,
-                        modifiedOn: new Date(ent["modifiedon"]),
-                        entityImageUrl: ent["createdby"].entityimage_url
+                function success(result) {
+                    const annotations = result.entities.map(ent => {
+                        return new Annotation({
+                            annotationId: ent["annotationid"].toString(),
+                            subject: ent["subject"] ? ent["subject"].toString() : "",
+                            description: ent["notetext"] ? ent["notetext"].toString() : "",
+                            fileName: ent["filename"],
+                            modifiedOn: new Date(ent["modifiedon"])
+                        });
                     });
-                });
-                return annotations;
+                    return annotations;
+                }
+                , function (error) {
+                    console.log(error.message);
+                    return [];
+                }
+            );
+        }
+    }
+
+    private getPdfFile(annotationId: string): Promise<string> {
+        const query = "?$select=documentbody";
+
+        return this._context.webAPI.retrieveRecord("annotation", annotationId, query).then(
+            function success(result) {
+                return result["documentbody"].toString();
             }
             , function (error) {
                 console.log(error.message);
-                return [];
+                return null;
             }
         );
-        }
     }
 }
