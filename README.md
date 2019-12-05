@@ -27,7 +27,17 @@ I didn't find a Typescript declaration file (d.ts) for the PSPDFKit JavaScript l
 Good enough for me.
 
 ### Chapter 2 - Initial Design
-I initially started out with a crude design that contained a drop-down list to hold the list of PDFs.  Selecting an item from the list would then load the PDF into the PSPDFKit viewer. I was able to get everything to work, but it wasn't free of roadblocks to overcome.  *See the Appendix below for descriptions of these roadblocks and how I overcame them.*
+I initially started out with a crude design that contained a drop-down list to hold the list of PDFs.  Selecting an item from the list would then load the PDF into the PSPDFKit viewer. I was able to get everything to work, but it wasn't free of roadblocks to overcome.
+
+**Roadblock #1**
+
+**Roadblock #2**
+
+**Roadblock #3**
+
+**Roadblock #4**
+
+**Roadblock #5**
 
 ### Chapter 3 - Design Refinements
 Having successfully implemented my crude design I decided to upgrade the look and feel to friendlier experience.  I decided to display each note/PDF record as a card, and when clicking on a card it would open a modal to dispaly the PDF in the PSPDFKit Viewer.
@@ -63,7 +73,17 @@ I also used Bootstrap's Modal component for displaying the PDF, but right away I
 
 ### Chapter 4 - The End Result
 
+Cards
 
+![Cards](https://github.com/drewpfeif/PCF-PSPDFKit/blob/master/images/cards.PNG?raw=true)
+
+Cards - Hover
+
+![Cards-Hover](https://github.com/drewpfeif/PCF-PSPDFKit/blob/master/images/cards_hover.PNG?raw=true)
+
+PSPDFKit PDF Viewer
+
+![PSPDFKit-PDF-Viwer](https://github.com/drewpfeif/PCF-PSPDFKit/blob/master/images/pdfviewer.PNG?raw=true)
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
