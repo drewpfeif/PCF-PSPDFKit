@@ -31,13 +31,22 @@ I initially started out with a crude design that contained a drop-down list to h
 
 **Roadblock #1**
 
+Manifest Property for storing the PSPDFKit License Key
+
 **Roadblock #2**
+
+Manifest Property for storing the PSPDFKit License Key, again
 
 **Roadblock #3**
 
+PSPDFKit-lib files
+
 **Roadblock #4**
 
+wasm file - solution found from PSPDFKit documentation
+
 **Roadblock #5**
+
 
 ### Chapter 3 - Design Refinements
 Having successfully implemented my crude design I decided to upgrade the look and feel to friendlier experience.  I decided to display each note/PDF record as a card, and when clicking on a card it would open a modal to dispaly the PDF in the PSPDFKit Viewer.
