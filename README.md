@@ -31,22 +31,36 @@ I initially started out with a crude design that contained a drop-down list to h
 
 **Roadblock #1**
 
-Manifest Property for storing the PSPDFKit License Key
+I first ran into issues when I packaged up my PCF component, imported it into my instance of Dynamics 365, and did my first test.  I could see in Chrome DevTools that PSPDFKit was trying to load a JavaScript file as a D365 Web Resource, but it was coming back with a 404 Not Found error.  I found that the missing file was in the pspdfkit-lib folder in the node_modules path for PSPDFKit, so I figured I would try and upload the missing JavaScript file to my D365 instance as a web resource.  I noticed in the 404 error that the web resource path had a "cc_" prefix in it.  When I created my D365 Solution to hold the web resources I created a new publisher and specified "cc" for the prefix so that my JavaScript web resource would have the "cc_" prefix.  I assumed "cc" stands for "custom control" in D365 land and was worried that using "cc" for my publisher prefix would by denied or would cause some side-effect, but never found that to be the case.
+
+I tested my idea by adding the first 404 Not Found file to my D365 Solution, published it, and tested my PCF component again.  I was happy to see Chrome DevTools successfully get the JavaScript file, but then a different came up 404 Not Found.  So I repeated the process again... and again... and again, until I didn't have any more 404 errors.
 
 **Roadblock #2**
 
-Manifest Property for storing the PSPDFKit License Key, again
+One of the missing pspdfkit-lib files that I came across was a .wasm file.  When I tried adding it to my D365 Solution as a web resource it was denied, saying that the file type wasn't allowed.  I overcame this issue by renaming the file by appending a ".js" to the end of the file name.  Thankfully D365 doesn't use that file name and instead it uses whatever file name I specify as the Name property of the web resource.  On to the next roadblock...
 
 **Roadblock #3**
 
-PSPDFKit-lib files
+Renaming the .wasm file took care of the previous roadblock, but when I tried to upload the file it failed again.  This time it was telling me the file size was too large.  I overcame this roadblock by increasing the Maximum file size in D365 System Settings / Email / Set the size limit for attachments.
 
 **Roadblock #4**
 
-wasm file - solution found from PSPDFKit documentation
+Testing my PCF component again and another error comes up in Chrome DevTools - PSPDFKit License Key is too short.  There's a Property in the ControlManifest.Input.xml file that I use to store the PSPDFKit License Kit.  The "of-type" attribute of this property was set to "SingleLine.Text", and apparently using this setting didn't allow the full length of the license key to be saved.  I changed it to "SingleLine.TextArea", tested again, and... it worked!  But...
 
 **Roadblock #5**
 
+I came back the next day after fixing the "of-type" issue, made some additional updates to my PCF component, imported it into my D365 instance, tested my PCF component again, and... PSPDFKit License Key was too short again.  This time I changed the "of-type" attribute to "Multipe", which says can contain up to 1,048,576 text characters.  I tested again and it worked :)
+
+**Roadblock #6**
+
+One last issue that was more of an annoyance than anything (everything was working) was that I was seeing in Chrome DevTools an error referring to "wasm something and streaming something something..." (*note: not the actual error message, I couldn't remember exactly what it was and I didn't feel like reproducing it).  I googled the error and found some troubleshooting suggestings on the PSPDFKit website [here](https://pspdfkit.com/guides/web/current/pspdfkit-for-web/troubleshooting/) under "Workaround by disabling streaming instantiation".  I added the "disableWebAssemblyStreaming" option to my PSPDFKit.load() statement and that took care of the error.
+
+```
+PSPDFKit.load({
+  disableWebAssemblyStreaming: true
+  // ... other options
+});
+```
 
 ### Chapter 3 - Design Refinements
 Having successfully implemented my crude design I decided to upgrade the look and feel to friendlier experience.  I decided to display each note/PDF record as a card, and when clicking on a card it would open a modal to dispaly the PDF in the PSPDFKit Viewer.
@@ -59,11 +73,11 @@ npm install --save @fortawesome/fontawesome-svg-core
 npm install --save @fortawesome/free-regular-svg-icons
 ```
 
-I just needed the bootstrap css file so I added it to my ControlManifest.Input.xml file.
+I just needed the bootstrap css file so I added it to the resources section of my ControlManifest.Input.xml file.
 
 `<css path="../node_modules/bootstrap/dist/css/bootstrap.min.css" order="1" />`
 
-I only used the pdf icon from Font Awesome.  Instead of loading everything from Font Awesome I singled out the pdf icon like this```
+I only used the pdf icon from Font Awesome.  Instead of loading everything from Font Awesome I singled out the pdf icon like this...
 
 ```
 import { library, dom } from "@fortawesome/fontawesome-svg-core";
@@ -93,6 +107,16 @@ Cards - Hover
 PSPDFKit PDF Viewer
 
 ![PSPDFKit-PDF-Viwer](https://github.com/drewpfeif/PCF-PSPDFKit/blob/master/images/pdfviewer.PNG?raw=true)
+
+## Managed Solutions
+
+Also included in this repository are two managed solutions in the "managed solutions" folder.
+
+**DrewPfeifPSPDFKit_1_0_0_0_managed.zip**
+- this solution contains the PCF-PSPDFKit component
+
+**pspdfkit_1_0_0_0_managed.zip**
+- this solution contains the pspdfkit-lib files.  I included all of them instead of only the four or file files that were missing for me. 
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
