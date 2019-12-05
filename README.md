@@ -18,7 +18,7 @@ I added an import statement to the top of my index.ts file and was ready to move
 
 `import PSPDFKit from "pspdfkit";`
 
-But...  Typescript complained that "(TS) Could not find a declaration file for module 'pspdfkit'".
+But```  Typescript complained that "(TS) Could not find a declaration file for module 'pspdfkit'".
 
 I didn't find a Typescript declaration file (d.ts) for the PSPDFKit JavaScript library, and I didn't feel like creating my own for it, so I replace the import statement with a require statement so that I could use PSPDFKit as an "any" type.
 
@@ -53,26 +53,26 @@ Having successfully implemented my crude design I decided to upgrade the look an
 
 I installed Bootstrap for styling the cards and Font Awesome for a PDF icon.
 
-...
+```
 npm install --save bootstrap
 npm install --save @fortawesome/fontawesome-svg-core
 npm install --save @fortawesome/free-regular-svg-icons
-...
+```
 
 I just needed the bootstrap css file so I added it to my ControlManifest.Input.xml file.
 
 `<css path="../node_modules/bootstrap/dist/css/bootstrap.min.css" order="1" />`
 
-I only used the pdf icon from Font Awesome.  Instead of loading everything from Font Awesome I singled out the pdf icon like this...
+I only used the pdf icon from Font Awesome.  Instead of loading everything from Font Awesome I singled out the pdf icon like this```
 
-...
+```
 import { library, dom } from "@fortawesome/fontawesome-svg-core";
 import { faFilePdf } from "@fortawesome/free-regular-svg-icons";
 
 library.add(faFilePdf);
 
 dom.watch();
-...
+```
 
 I was then able to use the pdf icon using the Font Awesome classes in my HTML markup.
 
