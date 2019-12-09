@@ -20,7 +20,7 @@ I added an import statement to the top of my index.ts file and was ready to move
 
 `import PSPDFKit from "pspdfkit";`
 
-But```  Typescript complained that "(TS) Could not find a declaration file for module 'pspdfkit'".
+But...  Typescript complained that "(TS) Could not find a declaration file for module 'pspdfkit'".
 
 I didn't find a Typescript declaration file (d.ts) for the PSPDFKit JavaScript library, and I didn't feel like creating my own for it, so I replace the import statement with a require statement so that I could use PSPDFKit as an "any" type.
 
@@ -75,9 +75,46 @@ npm install --save @fortawesome/fontawesome-svg-core
 npm install --save @fortawesome/free-regular-svg-icons
 ```
 
-I just needed the bootstrap css file so I added it to the resources section of my ControlManifest.Input.xml file.
+~~I just needed the bootstrap css file so I added it to the resources section of my ControlManifest.Input.xml file.~~
 
-`<css path="../node_modules/bootstrap/dist/css/bootstrap.min.css" order="1" />`
+~~`<css path="../node_modules/bootstrap/dist/css/bootstrap.min.css" order="1" />`~~
+
+Don't do this :arrow_up: it will mess up some of D365's styling.  To bring in Bootstrap css I added a Sass file (.scss) and namespaced Bootstrap so it wouldn't cause the styling issues I was seeing.
+
+```
+.twbs {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    text-align: left;
+    background-color: #fff;
+
+    @import "../../node_modules/bootstrap/scss/bootstrap";
+}
+// ... followed by my other styles
+```
+
+Then I added the .twbs class to my root component element.
+
+`container.classList.add("twbs");`
+
+To compile the Sass file to css I installed Node-sass.
+
+`npm install node-sass --save-dev`
+
+And then I added/modified some scripts to my package.json.
+
+```
+"scss": "node-sass DPPSPDFKit/scss -o DPPSPDFKit/css",
+"build": "npm run scss && pcf-scripts build",
+```
+
+From the command prompt I issue the command...
+`npm run build`
+and my dppspkit.css file is updated with Bootstrap inside .twbs, along my my own styles.
 
 I only used the pdf icon from Font Awesome.  Instead of loading everything from Font Awesome I singled out the pdf icon like this...
 

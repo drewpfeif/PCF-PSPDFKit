@@ -33,12 +33,6 @@ export class DPPSPDFKit implements ComponentFramework.StandardControl<IInputs, I
     // PSPDFKit License Key
     private _psPdfKitLicenseKey: string;
 
-    // modal
-    private _divModal: HTMLDivElement;
-
-    // modal title
-    private _h5ModalTitle: HTMLHeadingElement;
-
 	/**
 	 * Empty constructor.
 	 */
@@ -56,78 +50,20 @@ export class DPPSPDFKit implements ComponentFramework.StandardControl<IInputs, I
 	 */
     public init(context: ComponentFramework.Context<IInputs>, notifyOutputChanged: () => void, state: ComponentFramework.Dictionary, container: HTMLDivElement) {
         this._context = context;
-        this._psPdfKitLicenseKey = context.parameters.psPdfKitLicenseKey.raw ? context.parameters.psPdfKitLicenseKey.raw : "";
-        this._container = document.createElement("div");
-
-        //// font awesome test
-        //let faDiv = document.createElement("div");
-        //let faIcon = document.createElement("i");
-        //faIcon.classList.add("far", "fa-file-pdf", "fa-9x");
-        //faDiv.appendChild(faIcon);
-        //this._container.appendChild(faDiv);
         
+        this._psPdfKitLicenseKey = context.parameters.psPdfKitLicenseKey.raw ? context.parameters.psPdfKitLicenseKey.raw : "";
+        this._container = <HTMLDivElement>this.createHtmlElement("div", "pcf-container", "container");
+                
         // get annotations with pdf attachments
         this.initializeAnnotations();
-        this.initializePsPdfKitModal();
 
-        container.appendChild(this._container);
-    }
-
-    private initializePsPdfKitModal() {
-        let btnCloseModal = <HTMLButtonElement>this.createHtmlElement("button", "btn", "btn-secondary");
-        btnCloseModal.type = "button";
-        btnCloseModal.innerText = "Close";
-        btnCloseModal.onclick = (evt) => { this._divModal.classList.add("hidden"); };
-
-        let divModalFooter = <HTMLDivElement>this.createHtmlElement("div", "modal-footer");
-        divModalFooter.appendChild(btnCloseModal);
-
-        // add PSPDFKit container
-        this._psPdfKitContainer = document.createElement("div");
+        this._psPdfKitContainer = <HTMLDivElement>this.createHtmlElement("div", "hidden");
         this._psPdfKitContainer.id = "pspdfkit";
 
-        let divModalBody = <HTMLDivElement>this.createHtmlElement("div", "modal-body");
-        divModalBody.appendChild(this._psPdfKitContainer);
+        this._container.appendChild(this._psPdfKitContainer);
 
-        let spanCloseModal = document.createElement("span");
-        spanCloseModal.setAttribute("aria-hidden", "true");
-        spanCloseModal.innerText = "x";
-
-        let btnHeaderCloseModal = <HTMLButtonElement>this.createHtmlElement("button", "close");
-        btnHeaderCloseModal.type = "button";
-        btnHeaderCloseModal.setAttribute("data-dismiss", "modal");
-        btnHeaderCloseModal.setAttribute("area-label", "Close");
-        btnHeaderCloseModal.onclick = (evt) => { this._divModal.classList.add("hidden"); };
-        btnHeaderCloseModal.appendChild(spanCloseModal);
-
-        // make this global
-        this._h5ModalTitle = <HTMLHeadingElement>this.createHtmlElement("h5", "modal-title");
-        this._h5ModalTitle.id = "pdfModalTitle";
-        this._h5ModalTitle.innerText = "PDF Viewer";
-
-        let divModalHeader = <HTMLDivElement>this.createHtmlElement("div", "modal-header");
-        divModalHeader.appendChild(this._h5ModalTitle);
-        divModalHeader.appendChild(btnHeaderCloseModal);
-
-        let divModalContent = <HTMLDivElement>this.createHtmlElement("div", "modal-content");
-        divModalContent.appendChild(divModalHeader);
-        divModalContent.appendChild(divModalBody);
-        divModalContent.appendChild(divModalFooter);
-
-        let divModalDialog = <HTMLDivElement>this.createHtmlElement("div", "modal-dialog", "modal-xl", "modal-dialog-centered");
-        divModalDialog.setAttribute("role", "document");
-        divModalDialog.appendChild(divModalContent);
-
-        this._divModal = <HTMLDivElement>this.createHtmlElement("div", "modal", "hidden");
-        this._divModal.id = "pdfModal";
-        this._divModal.tabIndex = -1;
-        this._divModal.setAttribute("role", "dialog");
-        this._divModal.setAttribute("aria-labelledby", "pdfModalTitle");
-        this._divModal.setAttribute("aria-hidden", "true");
-        this._divModal.appendChild(divModalDialog);
-        
-        //this._container.appendChild(this._divModal);
-        document.body.appendChild(this._divModal);
+        container.appendChild(this._container);
+        container.classList.add("twbs");
     }
 
     private async initializeAnnotations() {
@@ -138,7 +74,7 @@ export class DPPSPDFKit implements ComponentFramework.StandardControl<IInputs, I
         
         if (annotations.length) {
             let cards = annotations.map(a => this.createCard(a));
-            let divGridCards = <HTMLDivElement>this.createHtmlElement("div", "row");
+            let divGridCards = <HTMLDivElement>this.createHtmlElement("div", "row", "cards-container");
             cards.forEach(c => divGridCards.appendChild(c));
             this._container.appendChild(divGridCards);
             this._annotations.push(...annotations);
@@ -158,17 +94,15 @@ export class DPPSPDFKit implements ComponentFramework.StandardControl<IInputs, I
     }
 
     private createCard(anno: Annotation): HTMLElement {
-        let divColMb4 = <HTMLDivElement>this.createHtmlElement("div", "col", "mb-4");
-        let divCard = <HTMLDivElement>this.createHtmlElement("div", "card");
-        let divCardBody = <HTMLDivElement>this.createHtmlElement("div", "card-body", "h-100", "hide-on-hover");
+        let divColMb4 = <HTMLDivElement>this.createHtmlElement("div", "col-12", "col-xs-12", "col-sm-6", "col-md-4", "col-lg-3", "mb-4");
+        let divCard = <HTMLDivElement>this.createHtmlElement("div", "card", "h-100");
+        let divCardBody = <HTMLDivElement>this.createHtmlElement("div", "card-body", "hide-on-hover");
         let h5CardTitle = <HTMLHeadingElement>this.createHtmlElement("h5", "card-title");
         let pCardText = <HTMLParagraphElement>this.createHtmlElement("p", "card-text");
         let ulListGroup = <HTMLUListElement>this.createHtmlElement("ul", "list-group", "list-group-flush");
         let liListGroupItemFileName = <HTMLLIElement>this.createHtmlElement("li", "list-group-item");
         let liListGroupItemModifiedDate = <HTMLLIElement>this.createHtmlElement("li", "list-group-item");
-        //let divCardFooter = <HTMLDivElement>this.createHtmlElement("div", "card-footer");
-        //let btnView = <HTMLButtonElement>this.createHtmlElement("button", "btn", "btn-primary", "btn-lg", "btn-block");
-        let divCardBodyHover = <HTMLDivElement>this.createHtmlElement("div", "card-body", "h-100", "show-on-hover");
+        let divCardBodyHover = <HTMLDivElement>this.createHtmlElement("div", "card-body", "show-on-hover");
         let divHoverTitle = <HTMLHeadingElement>this.createHtmlElement("h5", "card-title");
         let divHoverIcon = this.createHtmlElement("i", "far", "fa-file-pdf");
         let pHoverText = <HTMLParagraphElement>this.createHtmlElement("p", "card-text");
@@ -182,23 +116,13 @@ export class DPPSPDFKit implements ComponentFramework.StandardControl<IInputs, I
         liListGroupItemModifiedDate.innerText = anno.modifiedOn.toLocaleDateString();
         pHoverText.innerText = "View PDF";
 
-        divCardBodyHover.onclick = (e) => {
+        divCard.onclick = (e) => {
             this.selectAnnotation(anno.annotationId);
         };
-
-        //btnView.type = "button";
-        //btnView.innerText = "View PDF";
-        //btnView.value = anno.annotationId;
-        //btnView.setAttribute("data-toggle", "modal");
-        //btnView.setAttribute("data-target", "#pdfModal");
-        //btnView.onclick = (e) => {
-        //    this.selectAnnotation(e);
-        //};
 
         divHoverTitle.appendChild(divHoverIcon);
         divCardBodyHover.appendChild(divHoverTitle);
         divCardBodyHover.appendChild(pHoverText);
-        //divCardFooter.appendChild(btnView);
         ulListGroup.appendChild(liListGroupItemFileName);
         ulListGroup.appendChild(liListGroupItemModifiedDate);
         divCardBody.appendChild(h5CardTitle);
@@ -206,7 +130,6 @@ export class DPPSPDFKit implements ComponentFramework.StandardControl<IInputs, I
         divCard.appendChild(divCardBody);
         divCard.appendChild(divCardBodyHover);
         divCard.appendChild(ulListGroup);
-        //divCard.appendChild(divCardFooter);
         divColMb4.appendChild(divCard);
 
         return divColMb4;
@@ -218,15 +141,15 @@ export class DPPSPDFKit implements ComponentFramework.StandardControl<IInputs, I
 
         const annotation = this._annotations.find(a => a.annotationId === id);
         if (annotation) {
+            this._context.mode.setFullScreen(true);
+
             if (!annotation.documentBody) {
                 annotation.documentBody = await this.getPdfFile(annotation.annotationId);
             }
-            this._h5ModalTitle.innerText = annotation.fileName;
-            this._divModal.classList.remove("hidden");
+            
             this.load(annotation.documentBody);
         }
         else {
-            // make this a toast
             alert(`annotation ${id} not found!`);
         }
     }
@@ -263,6 +186,23 @@ export class DPPSPDFKit implements ComponentFramework.StandardControl<IInputs, I
     public updateView(context: ComponentFramework.Context<IInputs>): void {
         this._context = context;
         this._psPdfKitLicenseKey = context.parameters.psPdfKitLicenseKey.raw ? context.parameters.psPdfKitLicenseKey.raw : "";
+
+        let fullscreenOpen = false;
+        context.updatedProperties.forEach(p => {
+            if (p === "fullscreen_open") {
+                fullscreenOpen = true;
+            }
+            else if (p === "fullscreen_close") {
+                fullscreenOpen = false;
+            }
+        });
+
+        if (fullscreenOpen) {
+            this._container.classList.add("show-pdf-viewer");
+        }
+        else {
+            this._container.classList.remove("show-pdf-viewer");
+        }
     }
 
 	/** 
@@ -278,8 +218,7 @@ export class DPPSPDFKit implements ComponentFramework.StandardControl<IInputs, I
 	 * i.e. cancelling any pending remote calls, removing listeners, etc.
 	 */
     public destroy(): void {
-        // Add code to cleanup control if necessary
-        
+        // Add code to cleanup control if necessary        
     }
 
     /**
