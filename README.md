@@ -112,9 +112,7 @@ And then I added/modified some scripts to my package.json.
 "build": "npm run scss && pcf-scripts build",
 ```
 
-From the command prompt I issue the command...
-`npm run build`
-and my dppspkit.css file is updated with Bootstrap inside .twbs, along my my own styles.
+From the command prompt I issue the command `npm run build` and my dppspdfkit.css file is updated with Bootstrap inside .twbs, along my my own styles.
 
 I only used the pdf icon from Font Awesome.  Instead of loading everything from Font Awesome I singled out the pdf icon like this...
 
@@ -151,7 +149,8 @@ PSPDFKit PDF Viewer
 
 Also included in this repository are two managed solutions in the "managed solutions" folder.
 
-**DrewPfeifPSPDFKit_1_0_0_0_managed.zip**
+**~~DrewPfeifPSPDFKit_1_0_0_0_managed.zip~~**
+**PowerAppsTools_drpf_1_1_managed.zip**
 - this solution contains the PCF-PSPDFKit component
 
 **pspdfkit_1_0_0_0_managed.zip**
