@@ -131,7 +131,9 @@ I was then able to use the pdf icon using the Font Awesome classes in my HTML ma
 
 ~~I also used Bootstrap's Modal component for displaying the PDF, but right away I discovered the modal wasn't displaying when I clicked on a card.  I assumed it was because the Modal component needs jQuery in order to work, so I just added my own CSS and event handlers to show/hide the modal.~~
 
-I replaced the Bootstrap Modal I had initially used to display the PDF, but I replaced it by showing/hiding certain DOM elements and setting full screen mode to true `context.mode.setFullScreen(true)`
+I replaced the Bootstrap Modal I had initially used to display the PDF.  I am now displaying the PDF by showing/hiding certain DOM elements and setting full screen mode to true.
+
+`context.mode.setFullScreen(true)`
 
 ### Chapter 4 - The End Result
 
