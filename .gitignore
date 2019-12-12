@@ -13,8 +13,5 @@
 /bin
 /obj
 
-# solution directory
-/DrewPfeifPSPDFKit
-
 # vs
 /.vs
