@@ -1,12 +1,6 @@
 import { library, dom } from "@fortawesome/fontawesome-svg-core";
 import { faFilePdf } from "@fortawesome/free-regular-svg-icons";
-
-// We are only using the file-pdf icon
-library.add(faFilePdf);
-
-// Replace any existing <i> tags with <svg> and set up a MutationObserver to
-// continue doing this as the DOM changes.
-dom.watch();
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 import { IInputs, IOutputs } from "./generated/ManifestTypes";
 import { Annotation } from "./models/Annotation";
@@ -30,8 +24,19 @@ export class DPPSPDFKit implements ComponentFramework.StandardControl<IInputs, I
     // array of annotations with PDF attachments
     private _annotations: Array<Annotation> = [];
 
+    // selected annotation id
+    private _selectedAnnotationId: string;
+
     // PSPDFKit License Key
     private _psPdfKitLicenseKey: string;
+
+    // PSPDFKit Instance
+    private _instance: any;
+
+    // spinner element
+    private _spinner: HTMLElement;
+    // blocking div
+    private _blocker: HTMLDivElement;
 
 	/**
 	 * Empty constructor.
@@ -60,10 +65,27 @@ export class DPPSPDFKit implements ComponentFramework.StandardControl<IInputs, I
         this._psPdfKitContainer = <HTMLDivElement>this.createHtmlElement("div", "hidden");
         this._psPdfKitContainer.id = "pspdfkit";
 
+        this._blocker = <HTMLDivElement>this.createHtmlElement("div");
+        this._blocker.id = "pcf-pspdfkit-blocking-div";
+        this._spinner = <HTMLElement>this.createHtmlElement("i", "fas", "fa-spinner", "fa-spin", "fa-5x");
+        this._spinner.id = "pcf-pspdfkit-spinner";
+        
         this._container.appendChild(this._psPdfKitContainer);
+        this._container.appendChild(this._blocker);
+        this._container.appendChild(this._spinner);
 
         container.appendChild(this._container);
         container.classList.add("twbs");
+
+        // We are only using the file-pdf and fa-spinner icon
+        library.add(faFilePdf, faSpinner);
+
+        // Replace any existing <i> tags with <svg> and set up a MutationObserver to
+        // continue doing this as the DOM changes.
+        dom.watch({
+            autoReplaceSvgRoot: container,
+            observeMutationsRoot:  container
+        });
     }
 
     private async initializeAnnotations() {
@@ -117,6 +139,7 @@ export class DPPSPDFKit implements ComponentFramework.StandardControl<IInputs, I
         pHoverText.innerText = "View PDF";
 
         divCard.onclick = (e) => {
+            this._selectedAnnotationId = anno.annotationId;
             this.selectAnnotation(anno.annotationId);
         };
 
@@ -156,12 +179,9 @@ export class DPPSPDFKit implements ComponentFramework.StandardControl<IInputs, I
 
     private load(pdf: string): void {
         console.log(`converting pdf to ArrayBuffer...`);
-        const binaryString = atob(pdf);
-        const bytes = new Uint8Array(pdf.length);
-        for (var i = 0; i < pdf.length; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
-        }
-        const pdfToDisplay = bytes.buffer;
+        
+        const pdfToDisplay = this.convertBase64ToArrayBuffer(pdf);
+        const me = this;
 
         console.log(`Loading pdf...`);
         PSPDFKit.load({
@@ -172,11 +192,81 @@ export class DPPSPDFKit implements ComponentFramework.StandardControl<IInputs, I
             baseUrl: ""
         })
         .then((instance: any) => {
-            instance.addEventListener("annotations.change", () => {
-                console.log(`pdf loaded!`);
+            this._instance = instance;
+
+            //instance.addEventListener("annotations.change", () => {
+            //    console.log(`pdf loaded!`);
+            //});
+
+            const saveButton = {
+                type: "custom",
+                id: "btnSavePdf",
+                title: "Save",
+                onPress: async (event: any) => {
+                    me._container.classList.add("processing");
+
+                    // save annotations
+                    await me._instance.saveAnnotations();
+
+                    // export pdf
+                    const pdfBuffer = await me._instance.exportPDF();
+
+                    // convert pdf to base64 string
+                    const pdfBase64 = me.convertArrayBufferToBase64(pdfBuffer);
+
+                    // update anno object
+                    let annoToUpdate = me._annotations.find(a => a.annotationId === me._selectedAnnotationId);
+                    if (annoToUpdate !== undefined) {
+                        annoToUpdate.documentBody = pdfBase64;
+                    }
+
+                    // update anno entity
+                    me._context.webAPI.updateRecord("annotation", me._selectedAnnotationId, { "documentbody": pdfBase64, "mimetype": "application/pdf" })
+                        .then((val) => {
+                            //me._context.navigation.openAlertDialog({ text: "PDF Saved!" });
+                        }, (reason) => {
+                            me._context.navigation.openErrorDialog({ message: "Failed to Save PDF!" });
+                        })
+                        .finally(() => {
+                            me._container.classList.remove("processing");
+                        });
+                }
+            };
+
+            // add save button
+            instance.setToolbarItems((items: { type: string; id: string; title: string; onPress: (event: any) => void; }[]) => {
+                items.push(saveButton);
+                return items;
             });
         })
         .catch(console.error);
+    }
+
+    /**
+     * convert base64 string to array buffer
+     * @param pdf
+     */
+    private convertBase64ToArrayBuffer(base64String: string): ArrayBuffer {
+        const binaryString = atob(base64String);
+        const bytes = new Uint8Array(base64String.length);
+        for (var i = 0; i < base64String.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes.buffer;
+    }
+
+    /**
+     * convert array buffer to base64 string
+     * @param buffer
+     */
+    private convertArrayBufferToBase64(buffer: ArrayBuffer): string {
+        let binary = "";
+        const bytes = new Uint8Array(buffer);
+        const len = bytes.length;
+        for (var i = 0; i < len; i++) {
+            binary += String.fromCharCode(bytes[i]);
+        }
+        return btoa(binary);
     }
 
 	/**

@@ -10,8 +10,8 @@
     "rebuild": "npm run scss && pcf-scripts rebuild",
     "start": "pcf-scripts start",
     "push": "pac pcf push --publisher-prefix drpf",
-    "msbuild": "cd DrewPfeifPSPDFKit && msbuild && cd ..",
-    "publish": "npm run build && npm run msbuild && npm run push"
+    "msbuild": "msbuild",
+    "publish": "npm run build && msbuild && npm run push"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.25",
