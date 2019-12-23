@@ -1,7 +1,7 @@
 # PCF-PSPDFKit (DEMO)
 PowerApps Component Framework (PCF) Control that retrieves notes with PDF attachments and displays the selected PDF using [PSPDFKit](https://pspdfkit.com) (v2019.5)
 
-![Animated-Demo](https://github.com/drewpfeif/PCF-PSPDFKit/blob/master/images/pcf-pspdfkit.gif?raw=true)
+![Animated-Demo](https://github.com/drewpfeif/PCF-PSPDFKit/blob/master/images/pcf-pspdfkit-demo.gif?raw=true)
 
 ## Backstory
 A colleague inquired about a custom component using [PCF](https://docs.microsoft.com/en-us/powerapps/developer/component-framework/overview) that utilizes a PDF Viewer ([PSPDFKit](https://pspdfkit.com)). Inspired by the inquiry, I set out to learn more about developing PCF controls and hopefully help out a colleague along the way.
