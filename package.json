@@ -14,17 +14,17 @@
     "publish": "npm run build && msbuild && npm run push"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^1.2.25",
-    "@fortawesome/free-regular-svg-icons": "^5.11.2",
-    "@fortawesome/free-solid-svg-icons": "^5.11.2",
-    "@types/node": "^10.12.18",
+    "@fortawesome/fontawesome-svg-core": "^1.2.27",
+    "@fortawesome/free-regular-svg-icons": "^5.12.1",
+    "@fortawesome/free-solid-svg-icons": "^5.12.1",
+    "@types/node": "^10.17.14",
     "@types/powerapps-component-framework": "^1.2.0",
     "bootstrap": "^4.4.1",
-    "pspdfkit": "^2019.5.3"
+    "pspdfkit": "^2020.2.0"
   },
   "devDependencies": {
-    "node-sass": "^4.13.0",
-    "pcf-scripts": "^1",
-    "pcf-start": "^1"
+    "node-sass": "^4.13.1",
+    "pcf-scripts": "^1.1.6",
+    "pcf-start": "^1.1.6"
   }
 }

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <manifest>
-  <control namespace="DrewPfeif" constructor="DPPSPDFKit" version="1.0.0.1" display-name-key="DPPSPDFKit" description-key="DPPSPDFKit description" control-type="standard">
+  <control namespace="DrewPfeif" constructor="DPPSPDFKit" version="1.0.0" display-name-key="DPPSPDFKit" description-key="DPPSPDFKit description" control-type="standard">
     <!-- property node identifies a specific, configurable piece of data that the control expects from CDS -->
     <property name="dummyProperty" display-name-key="Dummy Property" description-key="Dummy Property" of-type="SingleLine.Text" usage="bound" required="true" />
-    <property name="psPdfKitLicenseKey" display-name-key="PSPDFKit License Key" description-key="PSPDFKit License Key" of-type="SingleLine.TextArea" usage="input" required="true" />
+    <property name="psPdfKitLicenseKey" display-name-key="PSPDFKit License Key" description-key="PSPDFKit License Key" of-type="Multiple" usage="input" required="true" />
     <!-- 
       Property node's of-type attribute can be of-type-group attribute. 
       Example:
