@@ -23,7 +23,7 @@
     "pspdfkit": "^2020.2.0"
   },
   "devDependencies": {
-    "node-sass": "^4",
+    "node-sass": "^7",
     "pcf-scripts": "^1",
     "pcf-start": "^1"
   }
