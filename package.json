@@ -19,7 +19,7 @@
     "@fortawesome/free-solid-svg-icons": "^5.12.1",
     "@types/node": "^10.17.14",
     "@types/powerapps-component-framework": "^1.2.0",
-    "bootstrap": "^4.4.1",
+    "bootstrap": "^5.0.0",
     "pspdfkit": "^2020.2.0"
   },
   "devDependencies": {
